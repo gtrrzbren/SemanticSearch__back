@@ -1,10 +1,13 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { JenaSearchResourceModule } from './SearchProcess/jena-search-resource/jena-search-resource.module';
+import { OwlUriStorageModule } from './SearchProcess/owl-uri-storage/owl-uri-storage.module';
 
 @Module({
-  imports: [],
+  imports: [JenaSearchResourceModule, OwlUriStorageModule],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
+
+
