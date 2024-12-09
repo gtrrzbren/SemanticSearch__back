@@ -1,12 +1,18 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { JenaSearchResourceModule } from './SearchProcess/jena-search-resource/jena-search-resource.module';
-import { OwlUriStorageModule } from './SearchProcess/owl-uri-storage/owl-uri-storage.module';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+import { SearchService } from './SearchProcess/search.service';
+import { SearchModule } from './SearchProcess/search.module';
 
 @Module({
-  imports: [JenaSearchResourceModule, OwlUriStorageModule],
+  imports: [
+    ElasticsearchModule.register({ node: 'http://localhost:9200', 
+      auth: { username: 'elastic', 
+              password: 'changeme' },} ), 
+    SearchModule, ],
   controllers: [AppController],
+  providers: [SearchService],
 })
 export class AppModule {}
 
