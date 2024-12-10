@@ -1,19 +1,29 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { ElasticsearchModule } from '@nestjs/elasticsearch';
-import { SearchService } from './SearchProcess/search.service';
-import { SearchModule } from './SearchProcess/search.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EntitiesModule } from './entities/entities.module';
+import { SearchProcessModule } from './SearchProcess/search-process.module';
+import { OntologyTreatmentModule } from './OntologyTreatment/ontology-treatment.module';
 
 @Module({
   imports: [
-    ElasticsearchModule.register({ node: 'http://localhost:9200', 
-      auth: { username: 'elastic', 
-              password: 'changeme' },} ), 
-    SearchModule, ],
-  controllers: [AppController],
-  providers: [SearchService],
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3306,
+      username: 'root',
+      password: 'password',
+      database: 'test',
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      synchronize: true,
+    }),
+    EntitiesModule,
+    SearchProcessModule,
+    OntologyTreatmentModule,
+  ],
 })
 export class AppModule {}
+
+
 
 
