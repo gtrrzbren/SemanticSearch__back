@@ -33,3 +33,4 @@ export class SearchProcessService {
     return this.registroRepository.findByIds(ids);
   }
 }
+
