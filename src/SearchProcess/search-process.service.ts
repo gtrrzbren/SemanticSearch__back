@@ -3,8 +3,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Registro } from '../entities/registro.entity';
-import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SearchResponse, SearchHit } from '@elastic/elasticsearch/lib/api/types';
+import { ElasticsearchService } from './elasticsearch.service';
 
 @Injectable()
 export class SearchProcessService {
@@ -15,7 +15,7 @@ export class SearchProcessService {
   ) {}
 
   async busquedaPorPalabras(consulta: string): Promise<Registro[]> {
-    const result: SearchResponse<Registro> = await this.elasticsearchService.search({
+    const result: SearchResponse<Registro> = await this.elasticsearchService.customSearch({
       index: 'registro',
       body: {
         query: {

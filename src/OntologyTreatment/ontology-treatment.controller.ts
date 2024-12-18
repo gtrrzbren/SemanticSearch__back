@@ -1,13 +1,33 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { OntologyTreatmentService } from './ontology-treatment.service';
 
 @Controller('ontology')
 export class OntologyTreatmentController {
   constructor(private readonly ontologyTreatmentService: OntologyTreatmentService) {}
 
-  /*@Get('procesar')
-  async procesar(): Promise<any> {
-    return this.ontologyTreatmentService.procesar();
-  }*/
+  @Get('load-all')
+  loadAll(@Query('synonym') synonym: string): string[] {
+    this.ontologyTreatmentService.setSynonym(synonym);
+    return this.ontologyTreatmentService.loadAll();
+  }
+
+  @Get('load-synonym')
+  loadSynonym(@Query('synonym') synonym: string): string[] {
+    this.ontologyTreatmentService.setSynonym(synonym);
+    return this.ontologyTreatmentService.loadSynonym();
+  }
+
+  @Get('load-related')
+  loadRelated(@Query('synonym') synonym: string): string[] {
+    this.ontologyTreatmentService.setSynonym(synonym);
+    return this.ontologyTreatmentService.loadRelated();
+  }
+
+  @Get('load-father')
+  loadFather(@Query('synonym') synonym: string): string[] {
+    this.ontologyTreatmentService.setSynonym(synonym);
+    return this.ontologyTreatmentService.loadFather();
+  }
 }
+
