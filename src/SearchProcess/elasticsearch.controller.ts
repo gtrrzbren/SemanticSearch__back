@@ -8,11 +8,16 @@ export class ElasticsearchController {
 
   @Get('search')
   async search(@Query('index') index: string, @Query('q') query: string) {
-    const body = {
-      query: {
-        match: { content: query },
+    const queries = [
+      {
+        index,
+        body: {
+          query: {
+            match: { content: query },
+          },
+        },
       },
-    };
-    return this.elasticsearchService.search(index, body);
+    ];
+    return this.elasticsearchService.customMSearch(queries);
   }
 }

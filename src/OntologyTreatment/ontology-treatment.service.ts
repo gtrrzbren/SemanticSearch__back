@@ -1,14 +1,17 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
+import * as $rdf from 'rdflib';
 
 @Injectable()
 export class OntologyTreatmentService {
-  private model: any;
+  private store: any;
+  private fetcher: any;
   private owlUri: string;
   private synon: string;
 
   constructor() {
-    this.model = null;
+    this.store = $rdf.graph();
+    this.fetcher = new $rdf.Fetcher(this.store);
   }
 
   getOwlUri(): string {
@@ -23,99 +26,132 @@ export class OntologyTreatmentService {
     return this.synon;
   }
 
-  setOwlUri(owlUri: string) {
+  async setOwlUri(owlUri: string) {
     this.owlUri = owlUri;
-    this.model = {}; // Aquí deberías inicializar tu modelo de ontología (equivalente en JavaScript)
+    await this.fetcher.load(owlUri);
   }
 
-  loadAll(): string[] {
+  async loadAll(): Promise<string[]> {
     const nameString = this.synon.toLowerCase().replace('/', ' ');
     const all: string[] = [];
-    const prolog = `PREFIX vin: <${this.model.getNsPrefixURI('')}>`;
+
+    const prolog = `PREFIX vin: <${this.store.namespaces.vin('')}>`;
     const prolog2 = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#>';
 
     const queryString = `${prolog} ${prolog2} SELECT ?x ?nombre WHERE {?x vin:nombre ?nombre . FILTER regex(?nombre, '${nameString}', "i")} LIMIT 5`;
-    const queryString1 = `${prolog} ${prolog2} SELECT ?x ?sinonimo WHERE {?x vin:sinonimo ?sinonimo . FILTER regex(?sinonimo, '${nameString}', "i")} LIMIT 5`;
-    const queryString2 = `${prolog} ${prolog2} SELECT ?x ?sinonimo ?nombre WHERE {?x vin:sinonimo ?sinonimo . FILTER regex(?sinonimo, '${nameString}', "i") . ?x vin:nombre ?nombre} LIMIT 5`;
+    const query = $rdf.SPARQLToQuery(queryString, false, this.store);
 
-    // Aquí deberías implementar la lógica para ejecutar las consultas sobre tu modelo
+    this.store.query(query, (results: any) => {
+      results.forEach((result: any) => {
+        all.push(result.nombre.value);
+      });
+    });
 
     return all;
   }
 
-  loadSynonym(): string[] {
-    let synonimList = this.getSynonymsByName();
+  async loadSynonym(): Promise<string[]> {
+    let synonimList = await this.getSynonymsByName();
     if (synonimList.length === 0) {
-      synonimList = this.getSynonymsBySynonym();
+      synonimList = await this.getSynonymsBySynonym();
     }
     return synonimList;
   }
 
-  loadRelated(): string[] {
-    let relatedList = this.getRelatedByName();
+  async loadRelated(): Promise<string[]> {
+    let relatedList = await this.getRelatedByName();
     if (relatedList.length === 0) {
-      relatedList = this.getRelatedBySynonym();
+      relatedList = await this.getRelatedBySynonym();
     }
     return relatedList;
   }
 
-  getSynonymsByName(): string[] {
+  async getSynonymsByName(): Promise<string[]> {
     const nameString = this.synon.toLowerCase();
-    const prolog = `PREFIX vin: <${this.model.getNsPrefixURI('')}>`;
+    const prolog = `PREFIX vin: <${this.store.namespaces.vin('')}>`;
     const prolog2 = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#>';
     const queryString = `${prolog} ${prolog2} SELECT ?x ?nombre ?sinonims WHERE {?x vin:nombre ?nombre . FILTER (fn:lower-case(?nombre) = '${nameString.replace('/', ' ')}') . ?x vin:sinonimo ?sinonims}`;
+    const query = $rdf.SPARQLToQuery(queryString, false, this.store);
 
-    // Aquí deberías implementar la lógica para ejecutar la consulta sobre tu modelo
+    const synonyms: string[] = [];
+    this.store.query(query, (results: any) => {
+      results.forEach((result: any) => {
+        synonyms.push(result.sinonims.value);
+      });
+    });
 
-    return [];
+    return synonyms;
   }
 
-  getSynonymsBySynonym(): string[] {
+  async getSynonymsBySynonym(): Promise<string[]> {
     const synonymString = this.synon.toLowerCase();
-    const prolog = `PREFIX vin: <${this.model.getNsPrefixURI('')}>`;
+    const prolog = `PREFIX vin: <${this.store.namespaces.vin('')}>`;
     const prolog2 = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#>';
     const queryString = `${prolog} ${prolog2} SELECT ?x ?sinonim ?sinonims WHERE {?x vin:sinonimo ?sinonim . FILTER (fn:lower-case(?sinonim) = '${synonymString.replace('/', ' ')}') . ?x vin:sinonimo ?sinonims}`;
+    const query = $rdf.SPARQLToQuery(queryString, false, this.store);
 
-    // Aquí deberías implementar la lógica para ejecutar la consulta sobre tu modelo
+    const synonyms: string[] = [];
+    this.store.query(query, (results: any) => {
+      results.forEach((result: any) => {
+        synonyms.push(result.sinonims.value);
+      });
+    });
 
-    return [];
+    return synonyms;
   }
 
-  getRelatedBySynonym(): string[] {
+  async getRelatedBySynonym(): Promise<string[]> {
     const synonymString = this.synon.toLowerCase();
-    const prolog = `PREFIX vin: <${this.model.getNsPrefixURI('')}>`;
+    const prolog = `PREFIX vin: <${this.store.namespaces.vin('')}>`;
     const prolog2 = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#>';
     const queryString = `${prolog} ${prolog2} SELECT ?x ?sinonim ?termino ?nombre WHERE {?x vin:sinonimo ?sinonim . ?x vin:termino_relacionado ?termino . ?termino vin:nombre ?nombre}`;
+    const query = $rdf.SPARQLToQuery(queryString, false, this.store);
 
-    // Aquí deberías implementar la lógica para ejecutar la consulta sobre tu modelo
+    const relatedTerms: string[] = [];
+    this.store.query(query, (results: any) => {
+      results.forEach((result: any) => {
+        relatedTerms.push(result.nombre.value);
+      });
+    });
 
-    return [];
+    return relatedTerms;
   }
 
-  getRelatedByName(): string[] {
+  async getRelatedByName(): Promise<string[]> {
     const nameString = this.synon.toLowerCase();
-    const prolog = `PREFIX vin: <${this.model.getNsPrefixURI('')}>`;
+    const prolog = `PREFIX vin: <${this.store.namespaces.vin('')}>`;
     const prolog2 = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#>';
     const queryString = `${prolog} ${prolog2} SELECT ?x ?termino ?nombre ?result WHERE {?x vin:termino_relacionado ?termino . ?x vin:nombre ?nombre . ?termino vin:nombre ?result}`;
+    const query = $rdf.SPARQLToQuery(queryString, false, this.store);
 
-    // Aquí deberías implementar la lógica para ejecutar la consulta sobre tu modelo
+    const relatedTerms: string[] = [];
+    this.store.query(query, (results: any) => {
+      results.forEach((result: any) => {
+        relatedTerms.push(result.result.value);
+      });
+    });
 
-    return [];
+    return relatedTerms;
   }
 
-  loadFather(): string[] {
+  async loadFather(): Promise<string[]> {
     const nameString = this.synon.toLowerCase();
-    const prolog = `PREFIX vin: <${this.model.getNsPrefixURI('')}>`;
+    const prolog = `PREFIX vin: <${this.store.namespaces.vin('')}>`;
     const prolog2 = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#>';
     const queryString = `${prolog} ${prolog2} SELECT ?x ?termino ?nombre ?result WHERE {?x vin:termino_superior ?termino . ?x vin:nombre ?nombre . ?termino vin:nombre ?result}`;
+    const query = $rdf.SPARQLToQuery(queryString, false, this.store);
 
-    // Aquí deberías implementar la lógica para ejecutar la consulta sobre tu modelo
+    const fathers: string[] = [];
+    this.store.query(query, (results: any) => {
+      results.forEach((result: any) => {
+        fathers.push(result.result.value);
+      });
+    });
 
-    return [];
+    return fathers;
   }
 
   private isRepited(list: string[], element: string): boolean {
     return list.includes(element);
   }
 }
-

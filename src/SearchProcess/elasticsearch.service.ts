@@ -3,14 +3,19 @@ import { Injectable } from '@nestjs/common';
 import { Client } from '@elastic/elasticsearch';
 
 @Injectable()
-export class ElasticsearchService extends Client {
+export class ElasticsearchService {
+  private client: Client;
 
   constructor() {
-    super({ node: 'http://localhost:9200' })
+    this.client = new Client({ node: 'http://localhost:9200' });
   }
 
-  // Métodos para interactuar con Elasticsearch
-  async search(index: string, query: any): Promise<any> {
-    return // implementar logica de buscado
+  async customMSearch(queries: any[]): Promise<any> {
+    const msearchBody = queries.reduce((acc, query) => {
+      return acc.concat([{ index: query.index }, { query: query.body.query }]);
+    }, []);
+    return this.client.msearch({ body: msearchBody });
   }
 }
+
+
