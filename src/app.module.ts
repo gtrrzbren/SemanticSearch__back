@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
-import { RegistroModule } from './entities/registro.module';
 import { SearchProcessModule } from './SearchProcess/search-process.module';
 import { ElasticsearchModule } from './SearchProcess/elasticsearch.module';
 import { OntologyTreatmentModule } from './OntologyTreatment/ontology-treatment.module';
+import { RegistroModule } from 'src/Entities/registro.module';
 
 @Module({
   imports: [
@@ -13,4 +13,4 @@ import { OntologyTreatmentModule } from './OntologyTreatment/ontology-treatment.
     OntologyTreatmentModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
