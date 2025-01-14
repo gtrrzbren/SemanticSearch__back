@@ -16,3 +16,4 @@ export class RegistroController {
     return this.registroService.findAll();
   }
 }
+

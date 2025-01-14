@@ -14,10 +14,61 @@ generator client {
 }
 
 model Registro {
-  id       Int    @id @default(autoincrement())
-  materialPeriodisticoId Int @unique
-  titulo   String
-  contenido String
+  id              Int      @id @default(autoincrement()) 
+  searchTerm      String?  
+  media           Media?  
+  autor           String?  
+  publicationDate DateTime? 
+  section         Section?  
+  contenido       String   
+  createdAt       DateTime @default(now()) 
+  updatedAt       DateTime @updatedAt 
+}
+
+enum Media {
+  GRANMA
+  JUVENTUD_REBELDE
+  CUBADEBATE
+  TRABAJADORES
+  OPUS_HABANA
+  BOHEMIA
+  PRENSA_LATINA
+  ADELANTE
+  VANGUARDIA
+  AHORA
+  RADIO_REBELDE
+  RADIO_RELOJ
+  RADIO_TACO
+  TELEVISION_CUBANA
+  PERIODICO_26
+  PERIODICO_ESCAMBRAY
+  PERIODICO_INVASOR
+  PERIODICO_VICTORIA
+  PERIODICO_CIEGO_DE_AVILA
+  PERIODICO_5_DE_SEPTIEMBRE
+}
+
+enum Section {
+  POLITICA
+  ECONOMIA
+  CULTURA
+  DEPORTES
+  INTERNACIONAL
+  CIENCIA_Y_TECNOLOGIA
+  SALUD
+  EDUCACION
+  MEDIO_AMBIENTE
+  OPINION
+  SOCIEDAD
+  HISTORIA
+  TURISMO
+  GASTRONOMIA
+  ARTE_Y_ESPECTACULOS
+  RELIGION
+  COMUNIDAD
+  MUNDO_DIGITAL
+  CIENCIA
+  TECNOLOGIA
 }
 
 
