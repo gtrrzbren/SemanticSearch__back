@@ -27,16 +27,16 @@ export class OntologyTreatmentService {
   // Método para cargar la ontología desde un archivo OWL
   async setOwlUri(owlUri: string) {
     this.owlUri = owlUri;
-
+    
     // Cargar el archivo OWL desde la ruta local
-    const filePath = path.join(__dirname, '..', 'ontology', 'deprensa.owl');
+    const filePath = path.join(process.cwd(), 'ontology', 'deprensa.owl');
     console.log(`Cargando ontología desde: ${filePath}`);
 
     const fileContent = fs.readFileSync(filePath, 'utf-8');
     console.log('Archivo OWL cargado correctamente.');
 
     // Parsear el contenido del archivo OWL
-    $rdf.parse(fileContent, this.store, this.owlUri, 'text/turtle');
+    $rdf.parse(fileContent, this.store, this.owlUri, 'application/rdf+xml');
     console.log('Ontología parseada y cargada en el almacén RDF.');
   }
 
