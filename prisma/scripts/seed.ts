@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seed() {
   // Insertar 10 registros de prueba
   await prisma.registro.createMany({
     data: [
@@ -152,14 +152,11 @@ async function main() {
         `,
       },
     ],
-  });
-}
-
-main()
-  .catch((e) => {
+  }).catch((e) => {
     console.error(e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+    .finally(async () => {
+      await prisma.$disconnect();
+    });;
+}
